@@ -1,0 +1,5 @@
+site_name: SSVproff Docs
+theme:
+  name: material
+nav:
+  - Главная: index.md
