@@ -48,4 +48,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4Вставьте и сохраните с сообщением: "Fix YAML syntax errors"
+        uses: actions/deploy-pages@v4
