@@ -1,0 +1,35 @@
+
+{
+  "version": "0.2",
+  "language": "en,ru",
+  "words": [
+    "SSVproff",
+    "ssvproff",
+    "uvicorn",
+    "fastapi",
+    "mkdocs",
+    "husky",
+    "commitlint",
+    "lychee",
+    "ruff",
+    "mypy",
+    "pyproject",
+    "distroless",
+    "healthcheck",
+    "dependabot",
+    "trivy",
+    "codecov",
+    "CODEOWNERS"
+  ],
+  "ignorePaths": [
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    "coverage",
+    "*.lock",
+    "*.min.*",
+    ".next",
+    "__pycache__"
+  ]
+}
