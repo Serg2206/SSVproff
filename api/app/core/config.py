@@ -49,8 +49,8 @@ class Settings(BaseSettings):
     
     # Database
     DATABASE_URL: str = Field(
-        ...,
-        description="PostgreSQL database connection URL"
+        default="sqlite:///./ssvproff.db",
+        description="Database connection URL (defaults to SQLite)"
     )
     
     # Backblaze B2 (from project context)
