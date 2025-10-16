@@ -8,9 +8,15 @@ Thumbs.db
 __pycache__/
 *.pyc
 .venv/
+.coverage
+*.db
+test.db
 
 # Node
 node_modules/
+.next/
+next-env.d.ts
+coverage/
 
 # DVC
 /.dvc/cache/
