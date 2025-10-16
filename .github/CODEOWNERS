@@ -1,0 +1,66 @@
+
+# CODEOWNERS файл для автоматического назначения ревьюеров
+# Документация: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Правила обрабатываются сверху вниз, последнее совпадение имеет приоритет
+
+# Глобальный владелец для всего репозитория
+* @Serg2206
+
+# API модуль (Python/FastAPI)
+/api/ @Serg2206
+/api/**/*.py @Serg2206
+/api/requirements*.txt @Serg2206
+/api/pyproject.toml @Serg2206
+/api/Dockerfile @Serg2206
+
+# Web модуль (Next.js/TypeScript)
+/web/ @Serg2206
+/web/**/*.ts @Serg2206
+/web/**/*.tsx @Serg2206
+/web/**/*.js @Serg2206
+/web/**/*.jsx @Serg2206
+/web/package.json @Serg2206
+
+# Документация
+/docs/ @Serg2206
+*.md @Serg2206
+/mkdocs.yml @Serg2206
+
+# Flows и автоматизация
+/flows/ @Serg2206
+/flows/**/*.sh @Serg2206
+
+# CI/CD конфигурации
+/.github/ @Serg2206
+/.github/workflows/ @Serg2206
+/.github/workflows/*.yml @Serg2206
+/.github/dependabot.yml @Serg2206
+
+# Конфигурационные файлы
+/Makefile @Serg2206
+/docker-compose.yml @Serg2206
+/.editorconfig @Serg2206
+/.gitignore @Serg2206
+/package.json @Serg2206
+/commitlint.config.js @Serg2206
+
+# Безопасность (требуется обязательное review)
+/SECURITY.md @Serg2206
+/.github/workflows/security.yml @Serg2206
+
+# Данные и схемы
+/data-meta/ @Serg2206
+
+# Линтеры и форматтеры
+.eslintrc.json @Serg2206
+.prettierrc @Serg2206
+.pylintrc @Serg2206
+
+# Environment files (критично для безопасности)
+.env.example @Serg2206
+
+# Примечание: Можно добавить дополнительных владельцев когда команда расширится
+# Пример:
+# /api/ @Serg2206 @backend-team
+# /web/ @Serg2206 @frontend-team
