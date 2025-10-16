@@ -27,7 +27,6 @@ def create_admin_user(db):
         admin = User(
             username="admin",
             email="admin@example.com",
-            full_name="Administrator",
             hashed_password=get_password_hash("admin123"),
             is_active=True,
             is_superuser=True
