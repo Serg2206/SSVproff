@@ -1,0 +1,52 @@
+
+{
+  "name": "ssvproff-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SSVproff - монорепозиторий с API, Web и документацией",
+  "scripts": {
+    "prepare": "husky install",
+    "lint": "npm run lint:api && npm run lint:web",
+    "lint:api": "cd api && ruff check .",
+    "lint:web": "cd web && npm run lint",
+    "format": "npm run format:api && npm run format:web",
+    "format:api": "cd api && black .",
+    "format:web": "cd web && npm run format",
+    "test": "npm run test:api && npm run test:web",
+    "test:api": "cd api && pytest",
+    "test:web": "cd web && npm test",
+    "build": "npm run build:api && npm run build:web",
+    "build:api": "echo 'API не требует сборки'",
+    "build:web": "cd web && npm run build",
+    "dev:api": "cd api && uvicorn app.main:app --reload --port 8001",
+    "dev:web": "cd web && npm run dev",
+    "docs:serve": "mkdocs serve",
+    "docs:build": "mkdocs build --strict"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^18.6.0",
+    "@commitlint/config-conventional": "^18.6.0",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.2"
+  },
+  "lint-staged": {
+    "api/**/*.py": [
+      "ruff check --fix",
+      "black"
+    ],
+    "web/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "web/**/*.{json,css,scss,md}": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
