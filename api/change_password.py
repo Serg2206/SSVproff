@@ -1,95 +1,111 @@
 #!/usr/bin/env python3
 """
-Скрипт для изменения пароля пользователя в системе SSVproff
+User password management script.
 
-Использование:
-    python change_password.py <имя_пользователя> <новый_пароль>
+This script allows you to update passwords for existing users
+or create new users if they don't exist.
 
-Пример:
-    python change_password.py admin MyNewSecurePassword123
-
-Требования:
-    - Новый пароль должен быть минимум 8 символов
-    - Пользователь должен существовать в базе данных
+Usage:
+    python change_password.py <username> <new_password>
+    
+Examples:
+    # Update password for existing user
+    python change_password.py admin newpassword123
+    
+    # Create new user (if doesn't exist)
+    python change_password.py john secretpassword
 """
-
 import sys
 import os
 from pathlib import Path
+from datetime import datetime
 
-# Добавляем путь к модулям приложения
+# Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.database import SessionLocal
-from app.models import User
-from app.auth import get_password_hash
+from sqlalchemy.orm import Session
+from app.db.session import SessionLocal
+from app.models.user import User
+from app.core.security import get_password_hash
 
 
-def validate_password(password: str) -> tuple[bool, str]:
+def update_or_create_user(username: str, new_password: str) -> bool:
     """
-    Валидация нового пароля
+    Update password for existing user or create new user if doesn't exist.
     
     Args:
-        password: Пароль для проверки
+        username: Username to update or create
+        new_password: New password to set
         
     Returns:
-        tuple: (успешность проверки, сообщение об ошибке)
+        True if operation successful, False otherwise
     """
-    if len(password) < 8:
-        return False, "❌ Ошибка: Пароль должен содержать минимум 8 символов"
-    
-    if len(password) > 72:
-        return False, "❌ Ошибка: Пароль не может быть длиннее 72 символов"
-    
-    return True, ""
-
-
-def change_user_password(username: str, new_password: str) -> bool:
-    """
-    Изменение пароля пользователя
-    
-    Args:
-        username: Имя пользователя
-        new_password: Новый пароль (будет захеширован)
-        
-    Returns:
-        bool: True если пароль успешно изменён, False в противном случае
-    """
-    # Валидация пароля
-    is_valid, error_message = validate_password(new_password)
-    if not is_valid:
-        print(error_message)
-        return False
-    
-    # Создание сессии базы данных
     db = SessionLocal()
     
     try:
-        # Поиск пользователя по имени
+        # Check if user exists
         user = db.query(User).filter(User.username == username).first()
         
-        if not user:
-            print(f"❌ Ошибка: Пользователь '{username}' не найден в базе данных")
-            return False
-        
-        # Хеширование нового пароля
-        print(f"🔐 Хеширование нового пароля...")
-        hashed_password = get_password_hash(new_password)
-        
-        # Обновление пароля в базе данных
-        user.hashed_password = hashed_password
-        db.commit()
-        
-        print(f"✅ Успешно! Пароль для пользователя '{username}' был изменён")
-        print(f"📧 Email: {user.email}")
-        print(f"🔑 Роль: {'Суперпользователь' if user.is_superuser else 'Обычный пользователь'}")
-        print(f"📊 Статус: {'Активен' if user.is_active else 'Неактивен'}")
-        print(f"🕒 Обновлено: {user.updated_at}")
-        
-        return True
-        
+        if user:
+            # User exists - update password
+            print(f"🔄 Изменение пароля пользователя")
+            print("=" * 60)
+            print(f"👤 Пользователь найден: {username}")
+            print("🔒 Хеширование нового пароля...")
+            
+            user.hashed_password = get_password_hash(new_password)
+            user.updated_at = datetime.utcnow()
+            
+            db.commit()
+            db.refresh(user)
+            
+            print(f"✅ Успешно! Пароль для пользователя '{username}' был изменён")
+            print(f"📧 Email: {user.email}")
+            print(f"🔑 Роль: {'Суперпользователь' if user.is_superuser else 'Пользователь'}")
+            print(f"📊 Статус: {'Активен' if user.is_active else 'Неактивен'}")
+            print(f"🕐 Обновлено: {user.updated_at.strftime('%Y-%m-%d %H:%M:%S.%f')}")
+            print("=" * 60)
+            print("✅ Операция завершена успешно!")
+            
+            return True
+        else:
+            # User doesn't exist - create new user
+            print(f"➕ Создание нового пользователя")
+            print("=" * 60)
+            print(f"👤 Пользователь '{username}' не найден")
+            print("📝 Создание нового пользователя...")
+            print("🔒 Хеширование пароля...")
+            
+            new_user = User(
+                email=f"{username}@example.com",
+                username=username,
+                hashed_password=get_password_hash(new_password),
+                is_active=True,
+                is_superuser=True,  # New users are created as superusers
+            )
+            
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+            
+            print(f"✅ Успешно! Новый пользователь '{username}' создан")
+            print(f"📧 Email: {new_user.email}")
+            print(f"🔑 Роль: Суперпользователь")
+            print(f"📊 Статус: Активен")
+            print(f"🕐 Создан: {new_user.created_at.strftime('%Y-%m-%d %H:%M:%S.%f')}")
+            print("=" * 60)
+            print("✅ Операция завершена успешно!")
+            print("\n⚠️  Рекомендации:")
+            print(f"   1. Email по умолчанию: {new_user.email}")
+            print(f"   2. Пользователь создан с правами суперпользователя")
+            print(f"   3. Измените email при необходимости через интерфейс")
+            
+            return True
+            
     except Exception as e:
-        print(f"❌ Ошибка при изменении пароля: {str(e)}")
+        print(f"❌ Ошибка: {str(e)}")
+        print("=" * 60)
+        print("❌ Операция завершена с ошибкой")
         db.rollback()
         return False
         
@@ -97,53 +113,40 @@ def change_user_password(username: str, new_password: str) -> bool:
         db.close()
 
 
-def print_usage():
-    """Вывод инструкции по использованию"""
-    print("=" * 70)
-    print("📝 Скрипт изменения пароля пользователя SSVproff")
-    print("=" * 70)
-    print()
-    print("Использование:")
-    print("    python change_password.py <имя_пользователя> <новый_пароль>")
-    print()
-    print("Пример:")
-    print("    python change_password.py admin MyNewSecurePassword123")
-    print()
-    print("Требования:")
-    print("    • Новый пароль должен содержать минимум 8 символов")
-    print("    • Новый пароль не может быть длиннее 72 символов")
-    print("    • Пользователь должен существовать в базе данных")
-    print()
-    print("=" * 70)
-
-
-def main():
-    """Основная функция"""
-    # Проверка аргументов командной строки
+def main() -> None:
+    """Main function."""
+    # Check command line arguments
     if len(sys.argv) != 3:
-        print_usage()
+        print("=" * 60)
+        print("❌ Неверное количество аргументов")
+        print("=" * 60)
+        print("\n📖 Использование:")
+        print(f"   python {sys.argv[0]} <username> <new_password>")
+        print("\n📝 Примеры:")
+        print(f"   python {sys.argv[0]} admin newpassword123")
+        print(f"   python {sys.argv[0]} john secretpassword")
+        print("\n💡 Скрипт выполнит:")
+        print("   • Если пользователь существует → обновит пароль")
+        print("   • Если пользователь не существует → создаст нового пользователя")
+        print("=" * 60)
         sys.exit(1)
     
     username = sys.argv[1]
     new_password = sys.argv[2]
     
-    print()
-    print("=" * 70)
-    print("🔄 Изменение пароля пользователя")
-    print("=" * 70)
-    print()
+    # Validate inputs
+    if not username or not username.strip():
+        print("❌ Ошибка: Имя пользователя не может быть пустым")
+        sys.exit(1)
     
-    # Изменение пароля
-    success = change_user_password(username, new_password)
+    if not new_password or len(new_password) < 6:
+        print("❌ Ошибка: Пароль должен содержать минимум 6 символов")
+        sys.exit(1)
     
-    print()
-    print("=" * 70)
+    # Update or create user
+    success = update_or_create_user(username.strip(), new_password)
     
-    if success:
-        print("✅ Операция завершена успешно!")
-        sys.exit(0)
-    else:
-        print("❌ Операция завершена с ошибкой")
+    if not success:
         sys.exit(1)
 
 
