@@ -1,161 +1,382 @@
-
 # SSVproff API
 
-A comprehensive FastAPI-based backend for managing ML datasets, experiments, and projects.
+FastAPI-based REST API with PostgreSQL database and JWT authentication.
 
 ## Features
 
-- 🔐 JWT-based authentication
-- 👥 User management
-- 📁 Project organization
-- 📊 Dataset management
-- 🧪 Experiment tracking
-- 📝 Complete API documentation
-- 🔄 CORS support
-- 💾 SQLite/PostgreSQL database support
+- ✅ **FastAPI Framework**: Modern, fast Python web framework
+- ✅ **PostgreSQL Database**: Robust relational database with SQLAlchemy ORM
+- ✅ **JWT Authentication**: Secure token-based authentication
+- ✅ **Password Hashing**: Bcrypt password encryption
+- ✅ **Database Migrations**: Alembic for version-controlled schema changes
+- ✅ **Comprehensive Tests**: Unit and integration tests with pytest
+- ✅ **API Documentation**: Auto-generated OpenAPI (Swagger) documentation
+- ✅ **Type Safety**: Full type hints with mypy support
+- ✅ **Code Quality**: Linting with ruff and formatting with black
 
 ## Quick Start
 
 ### Prerequisites
 
-- Python 3.8+
+- Python 3.11+
+- PostgreSQL 12+
 - pip or poetry
 
 ### Installation
 
-1. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+1. **Install dependencies:**
+   ```bash
+   cd api
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt  # For development
+   ```
 
-2. Create environment file:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+2. **Set up PostgreSQL database:**
+   ```bash
+   # Access PostgreSQL
+   sudo -u postgres psql
+   
+   # Create database and user
+   CREATE DATABASE ssvproff_db;
+   CREATE USER ssvproff_user WITH PASSWORD 'ssvproff_password';
+   GRANT ALL PRIVILEGES ON DATABASE ssvproff_db TO ssvproff_user;
+   \q
+   ```
 
-3. Initialize the database:
-```bash
-python init_db.py
-```
+3. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
 
-This will create:
-- All database tables
-- A default admin user (username: `admin`, password: `admin123`)
+4. **Run database migrations:**
+   ```bash
+   alembic upgrade head
+   ```
 
-**⚠️ Important: Change the admin password immediately after first login!**
+5. **Start the development server:**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
 
-### Running the Server
-
-Development mode (with auto-reload):
-```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-Production mode:
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-The API will be available at:
-- API: http://localhost:8000
-- Interactive docs (Swagger): http://localhost:8000/docs
-- Alternative docs (ReDoc): http://localhost:8000/redoc
-
-## API Endpoints
-
-### Authentication
-- `POST /api/v1/auth/register` - Register a new user
-- `POST /api/v1/auth/login` - Login and get access token
-- `GET /api/v1/auth/me` - Get current user info
-
-### Projects
-- `GET /api/v1/projects` - List all projects
-- `POST /api/v1/projects` - Create a new project
-- `GET /api/v1/projects/{id}` - Get project details
-- `PUT /api/v1/projects/{id}` - Update a project
-- `DELETE /api/v1/projects/{id}` - Delete a project
-
-### Health
-- `GET /health` - Health check endpoint
+6. **Access the API:**
+   - API: http://localhost:8000
+   - Interactive docs (Swagger UI): http://localhost:8000/docs
+   - Alternative docs (ReDoc): http://localhost:8000/redoc
 
 ## Project Structure
 
 ```
 api/
+├── alembic/                    # Database migrations
+│   ├── versions/              # Migration files
+│   └── env.py                 # Alembic configuration
 ├── app/
-│   ├── __init__.py
-│   ├── main.py           # FastAPI application
-│   ├── config.py         # Configuration settings
-│   ├── database.py       # Database connection
-│   ├── models.py         # SQLAlchemy models
-│   ├── schemas.py        # Pydantic schemas
-│   ├── auth.py           # Authentication logic
-│   └── routers/          # API route handlers
-│       ├── __init__.py
-│       ├── auth.py       # Auth endpoints
-│       └── projects.py   # Project endpoints
-├── init_db.py           # Database initialization script
-├── requirements.txt     # Python dependencies
-├── .env.example        # Environment variables template
-└── README.md           # This file
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── endpoints/    # API endpoint routes
+│   │   │   └── api.py        # API router aggregator
+│   │   └── deps.py           # Dependencies (auth, db)
+│   ├── core/
+│   │   ├── config.py         # Application settings
+│   │   └── security.py       # Security utilities (JWT, passwords)
+│   ├── db/
+│   │   ├── base.py           # SQLAlchemy base
+│   │   └── session.py        # Database session management
+│   ├── models/
+│   │   └── user.py           # User model
+│   ├── schemas/
+│   │   ├── user.py           # User Pydantic schemas
+│   │   └── auth.py           # Auth Pydantic schemas
+│   ├── services/
+│   │   └── auth.py           # Authentication business logic
+│   └── main.py               # FastAPI application
+├── docs/
+│   ├── authentication.md     # Authentication API documentation
+│   └── database_setup.md     # Database setup guide
+├── tests/
+│   ├── test_auth_endpoints.py    # Auth endpoint tests
+│   ├── test_database.py          # Database tests
+│   ├── test_security.py          # Security utilities tests
+│   └── conftest.py               # Pytest fixtures
+├── .env.example              # Environment variables template
+├── alembic.ini              # Alembic configuration
+├── requirements.txt         # Production dependencies
+└── requirements-dev.txt     # Development dependencies
 ```
+
+## API Endpoints
+
+### Authentication
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/v1/auth/register` | Register new user | No |
+| POST | `/api/v1/auth/login` | Login and get tokens | No |
+| GET | `/api/v1/auth/me` | Get current user | Yes |
+| POST | `/api/v1/auth/refresh` | Refresh access token | No |
+
+### Health Check
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/api/v1/health` | API health status | No |
+| GET | `/health` | Legacy health check | No |
+
+For detailed API documentation, see [Authentication Documentation](docs/authentication.md).
 
 ## Configuration
 
-Edit `.env` file to configure:
-- Database connection
-- JWT secret key
-- Token expiration time
-- CORS origins
-- File upload settings
+Key environment variables in `.env`:
 
-## Database
+```env
+# API Configuration
+PROJECT_NAME=SSVproff API
+VERSION=0.1.0
+API_V1_PREFIX=/api/v1
+DEBUG=true
 
-### SQLite (Default)
-The default configuration uses SQLite, which is perfect for development and small deployments.
+# CORS
+BACKEND_CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
 
-### PostgreSQL (Production)
-For production, we recommend PostgreSQL:
+# Security
+SECRET_KEY=your-secret-key-change-in-production
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 
-1. Install PostgreSQL
-2. Create a database:
-```sql
-CREATE DATABASE ssvproff;
-```
-3. Update `.env`:
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/ssvproff
+# Database
+DATABASE_URL=postgresql://ssvproff_user:ssvproff_password@localhost:5432/ssvproff_db
+
+# Logging
+LOG_LEVEL=INFO
 ```
 
-## Authentication
-
-The API uses JWT (JSON Web Tokens) for authentication:
-
-1. Register a new user or use the default admin account
-2. Login to receive an access token
-3. Include the token in subsequent requests:
-```
-Authorization: Bearer <your_token>
+**Generate a secure secret key:**
+```bash
+openssl rand -hex 32
 ```
 
-## Development
+## Database Management
 
-### Testing
+### Migrations
+
+```bash
+# Create a new migration
+alembic revision -m "Description"
+
+# Apply migrations
+alembic upgrade head
+
+# Rollback one revision
+alembic downgrade -1
+
+# View migration history
+alembic history
+
+# Check current revision
+alembic current
+```
+
+For detailed database setup, see [Database Setup Guide](docs/database_setup.md).
+
+## Testing
+
+### Run all tests:
 ```bash
 pytest
 ```
 
-### Code Formatting
+### Run with coverage:
 ```bash
-black app/
+pytest --cov=app --cov-report=html
 ```
 
-### Linting
+### Run specific test file:
 ```bash
-flake8 app/
+pytest tests/test_auth_endpoints.py
 ```
+
+### Run specific test:
+```bash
+pytest tests/test_auth_endpoints.py::TestLoginEndpoint::test_login_success -v
+```
+
+## Development
+
+### Code Quality
+
+```bash
+# Format code
+black app tests
+
+# Sort imports
+isort app tests
+
+# Lint code
+ruff check app tests
+
+# Type checking
+mypy app
+```
+
+### Database Operations
+
+```bash
+# Drop all tables and recreate (CAUTION: DATA LOSS!)
+alembic downgrade base
+alembic upgrade head
+
+# Reset test database
+pytest --create-db
+```
+
+## Docker Support
+
+### Using Docker Compose
+
+```bash
+# Build and start services
+docker-compose up -d
+
+# Run migrations
+docker-compose exec api alembic upgrade head
+
+# View logs
+docker-compose logs -f api
+
+# Stop services
+docker-compose down
+```
+
+## Security
+
+### Best Practices
+
+1. **Environment Variables**: Never commit `.env` file
+2. **Secret Key**: Use strong random key (32+ characters)
+3. **HTTPS**: Always use HTTPS in production
+4. **Database**: Use strong passwords and restrict access
+5. **Token Storage**: Store tokens securely on client side
+6. **CORS**: Configure appropriate CORS origins
+7. **Rate Limiting**: Implement rate limiting for auth endpoints
+
+### Password Requirements
+
+- Minimum 8 characters
+- Automatically hashed with bcrypt
+
+### Token Expiration
+
+- Access Token: 30 minutes (configurable)
+- Refresh Token: 7 days
+
+## API Usage Examples
+
+### Register a User
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "username": "johndoe",
+    "password": "securepassword123"
+  }'
+```
+
+### Login
+
+```bash
+curl -X POST "http://localhost:8000/api/v1/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword123"
+  }'
+```
+
+### Access Protected Endpoint
+
+```bash
+curl -X GET "http://localhost:8000/api/v1/auth/me" \
+  -H "Authorization: Bearer <access_token>"
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Check database exists
+sudo -u postgres psql -l
+
+# Test connection
+psql -U ssvproff_user -d ssvproff_db -h localhost
+```
+
+### Migration Issues
+
+```bash
+# Check current revision
+alembic current
+
+# Stamp database with latest revision (if out of sync)
+alembic stamp head
+
+# Show migration history
+alembic history
+```
+
+### Import Errors
+
+```bash
+# Ensure you're in the correct directory
+cd api
+
+# Reinstall dependencies
+pip install -r requirements.txt
+```
+
+## Contributing
+
+1. Follow the existing code style
+2. Write tests for new features
+3. Update documentation
+4. Ensure all tests pass
+5. Run code quality tools
+
+## Documentation
+
+- [Authentication API](docs/authentication.md) - Complete authentication API reference
+- [Database Setup](docs/database_setup.md) - Database configuration and migration guide
+- [API Docs (Swagger)](http://localhost:8000/docs) - Interactive API documentation
+- [API Docs (ReDoc)](http://localhost:8000/redoc) - Alternative API documentation
+
+## Tech Stack
+
+- **Framework**: FastAPI 0.115+
+- **Database**: PostgreSQL with SQLAlchemy 2.0+
+- **Authentication**: JWT with python-jose
+- **Password Hashing**: passlib with bcrypt
+- **Migrations**: Alembic 1.12+
+- **Testing**: pytest with httpx
+- **Validation**: Pydantic 2.0+
+- **Type Checking**: mypy
+- **Code Quality**: ruff, black, isort
 
 ## License
 
-MIT License
+See the LICENSE file in the root of the repository.
+
+## Support
+
+For issues and questions:
+1. Check the documentation
+2. Review existing GitHub issues
+3. Create a new issue with detailed information
+
+---
+
+**Note**: This is the API component of the SSVproff monorepo. See the root README for overall project information.

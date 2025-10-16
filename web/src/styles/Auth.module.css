@@ -1,0 +1,120 @@
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #333;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.error {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+  color: #c00;
+  font-size: 14px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.input {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+}
+
+.button {
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-top: 10px;
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+}
+
+.link {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+

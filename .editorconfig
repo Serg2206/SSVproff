@@ -1,0 +1,45 @@
+
+# EditorConfig - единые настройки для всех редакторов
+# https://editorconfig.org
+
+root = true
+
+# Значения по умолчанию для всех файлов
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Python файлы
+[*.py]
+indent_size = 4
+max_line_length = 100
+
+# JavaScript/TypeScript
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+indent_size = 2
+max_line_length = 100
+
+# JSON файлы
+[*.json]
+indent_size = 2
+
+# YAML файлы
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown файлы
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+# Makefile требует tabs
+[Makefile]
+indent_style = tab
+
+# Shell scripts
+[*.sh]
+indent_size = 2

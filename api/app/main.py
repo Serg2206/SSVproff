@@ -1,104 +1,97 @@
+"""
+SSVproff API - Main application entry point.
 
-from fastapi import FastAPI, Request
+This module initializes and configures the FastAPI application with all
+middleware, routers, and event handlers.
+"""
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from datetime import datetime
 import logging
 
-from .config import settings
-from .database import init_db
-from .routers import auth_router, projects_router
-from .schemas import HealthCheck
+from app.api.v1.api import api_router
+from app.core.config import settings
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-# Create FastAPI app
+# Create FastAPI application instance
 app = FastAPI(
-    title=settings.APP_NAME,
-    version=settings.APP_VERSION,
-    description="SSVproff API - A comprehensive solution for managing ML datasets and experiments",
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    description="API for SSVproff - монорепо с документацией, автоматизацией и заготовками API/Web",
+    openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
 )
 
-# Configure CORS
+# Configure CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
-# Exception handler
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"Global exception: {exc}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={"detail": "Internal server error"}
-    )
+# Include API v1 router
+app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 
 
-# Startup event
+# Root endpoint - provides basic API information
+@app.get("/")
+def root():
+    """
+    Root endpoint returning API information.
+    
+    Returns:
+        dict: API name and version information
+    """
+    return {
+        "name": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "docs": "/docs",
+        "redoc": "/redoc",
+        "api_v1": settings.API_V1_PREFIX,
+    }
+
+
+# Legacy health endpoint (kept for backward compatibility)
+# Prefer using /api/v1/health instead
+@app.get("/health")
+def health_legacy():
+    """
+    Legacy health check endpoint.
+    
+    Note:
+        Use /api/v1/health for the current health check endpoint.
+        This endpoint is kept for backward compatibility.
+    
+    Returns:
+        dict: Health status
+    """
+    return {"status": "ok"}
+
+
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
-    logger.info("Starting up SSVproff API...")
-    try:
-        init_db()
-        logger.info("Database initialized successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {e}")
+    """
+    Application startup event handler.
+    
+    Performs initialization tasks when the application starts.
+    """
+    # TODO: Initialize database connections
+    # TODO: Initialize cache connections
+    # TODO: Load ML models if any
+    pass
 
 
-# Shutdown event
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Cleanup on shutdown"""
-    logger.info("Shutting down SSVproff API...")
-
-
-# Root endpoint
-@app.get("/", tags=["root"])
-def root():
-    """Root endpoint"""
-    return {
-        "name": settings.APP_NAME,
-        "version": settings.APP_VERSION,
-        "status": "operational",
-        "docs": "/docs",
-        "redoc": "/redoc"
-    }
-
-
-# Health check endpoint
-@app.get("/health", response_model=HealthCheck, tags=["health"])
-def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "version": settings.APP_VERSION,
-        "timestamp": datetime.utcnow()
-    }
-
-
-# Include routers
-app.include_router(auth_router, prefix=settings.API_V1_PREFIX)
-app.include_router(projects_router, prefix=settings.API_V1_PREFIX)
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG
-    )
+    """
+    Application shutdown event handler.
+    
+    Performs cleanup tasks when the application shuts down.
+    """
+    # TODO: Close database connections
+    # TODO: Close cache connections
+    # TODO: Cleanup resources
+    pass

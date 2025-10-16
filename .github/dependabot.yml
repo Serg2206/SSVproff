@@ -1,10 +1,77 @@
+
+# Dependabot конфигурация для автоматических обновлений зависимостей
+# Проверяет npm (api/web отдельно), pip, GitHub Actions
 version: 2
 updates:
-  - package-ecosystem: "pip"
-    directory: "/api"
-    schedule:
-      interval: "weekly"
+  # NPM зависимости для Web модуля
   - package-ecosystem: "npm"
     directory: "/web"
     schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Serg2206"
+    labels:
+      - "dependencies"
+      - "web"
+    # Группировка minor и patch обновлений
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Pip зависимости для API модуля
+  - package-ecosystem: "pip"
+    directory: "/api"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "Serg2206"
+    labels:
+      - "dependencies"
+      - "api"
+    groups:
+      minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions обновления
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
       interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "Serg2206"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  # Docker зависимости
+  - package-ecosystem: "docker"
+    directory: "/api"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "docker"
