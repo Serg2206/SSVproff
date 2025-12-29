@@ -1,56 +1,23 @@
 {
-  "name": "ssvproff-monorepo",
+  "name": "ssvproff",
   "version": "1.0.0",
-  "description": "SSVproff монорепозиторий с документацией, автоматизацией и заготовками API/Web",
+  "description": "Minimal starter with documentation, automation, and API/Web scaffolding",
   "private": true,
-  "packageManager": "pnpm@8.0.0",
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
-  },
+  "main": "index.js",
   "scripts": {
-    "dev": "pnpm --parallel --stream run dev",
-    "dev:api": "pnpm --filter @ssvproff/api dev",
-    "dev:web": "pnpm --filter @ssvproff/web dev",
-    "build": "pnpm --recursive run build",
-    "build:api": "pnpm --filter @ssvproff/api build",
-    "build:web": "pnpm --filter @ssvproff/web build",
-    "test": "pnpm --recursive run test",
-    "test:api": "pnpm --filter @ssvproff/api test",
-    "test:web": "pnpm --filter @ssvproff/web test",
-    "lint": "pnpm --recursive run lint",
-    "lint:fix": "pnpm --recursive run lint:fix",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
-    "clean": "pnpm --recursive run clean && rm -rf node_modules",
-    "docs:serve": "cd docs && mkdocs serve",
-    "docs:build": "cd docs && mkdocs build",
-    "prepare": "husky install || true"
+    "dev": "concurrently \"cd packages/api && pnpm dev\" \"cd packages/web && pnpm dev\"",
+    "build": "pnpm --recursive build",
+    "build:api": "cd packages/api && pnpm build",
+    "build:web": "cd packages/web && pnpm build",
+    "lint": "pnpm --recursive lint"
   },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.50.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
-    "husky": "^8.0.0",
-    "prettier": "^3.0.0",
-    "turbo": "^1.10.0",
-    "@types/node": "^20.10.0",
-    "concurrently": "^8.2.0",
-    "typescript": "^5.2.0"
-  },
-  "keywords": [
-    "monorepo",
-    "pnpm",
-    "workspace",
-    "medical",
-    "surgery",
-    "ssvproff"
-  ],
-  "author": "Sergiy Sushkov <ssvnauka@gmail.com>",
+  "keywords": ["typescript", "monorepo", "ssvproff", "api", "web"],
+  "author": "SSV Platform Team",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Serg2206/SSVproff.git"
-  }
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  },
+  "packageManager": "pnpm@9.1.0"
 }
