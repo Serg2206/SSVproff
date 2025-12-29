@@ -1,0 +1,54 @@
+{
+  "name": "ssvproff-monorepo",
+  "version": "1.0.0",
+  "description": "SSVproff монорепозиторий с документацией, автоматизацией и заготовками API/Web",
+  "private": true,
+  "packageManager": "pnpm@8.0.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --stream run dev",
+    "dev:api": "pnpm --filter @ssvproff/api dev",
+    "dev:web": "pnpm --filter @ssvproff/web dev",
+    "build": "pnpm --recursive run build",
+    "build:api": "pnpm --filter @ssvproff/api build",
+    "build:web": "pnpm --filter @ssvproff/web build",
+    "test": "pnpm --recursive run test",
+    "test:api": "pnpm --filter @ssvproff/api test",
+    "test:web": "pnpm --filter @ssvproff/web test",
+    "lint": "pnpm --recursive run lint",
+    "lint:fix": "pnpm --recursive run lint:fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md}\"",
+    "clean": "pnpm --recursive run clean && rm -rf node_modules",
+    "docs:serve": "cd docs && mkdocs serve",
+    "docs:build": "cd docs && mkdocs build",
+    "prepare": "husky install || true"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.50.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "husky": "^8.0.0",
+    "prettier": "^3.0.0",
+    "turbo": "^1.10.0",
+    "typescript": "^5.2.0"
+  },
+  "keywords": [
+    "monorepo",
+    "pnpm",
+    "workspace",
+    "medical",
+    "surgery",
+    "ssvproff"
+  ],
+  "author": "Sergiy Sushkov <ssvnauka@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Serg2206/SSVproff.git"
+  }
+}
