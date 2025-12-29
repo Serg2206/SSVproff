@@ -1,0 +1,54 @@
+{
+  "compilerOptions": {
+    // Target & Module
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    
+    // Interop
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    
+    // Type Checking
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    // Paths
+    "baseUrl": ".",
+    "paths": {
+      "@ssvproff/shared": ["packages/shared/src/index"],
+      "@ssvproff/shared/*": ["packages/shared/src/*"],
+      "@ssvproff/api": ["packages/api/src"],
+      "@ssvproff/api/*": ["packages/api/src/*"],
+      "@ssvproff/web": ["packages/web/src"],
+      "@ssvproff/web/*": ["packages/web/src/*"]
+    },
+    
+    // Output
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    
+    // Resolution
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "checkJs": false,
+    
+    // Other
+    "noEmit": true,
+    "incremental": true
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ],
+  "include": [
+    "packages/*/src/**/*"
+  ]
+}
