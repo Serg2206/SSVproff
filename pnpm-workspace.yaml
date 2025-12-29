@@ -1,0 +1,9 @@
+# pnpm workspace configuration for SSVproff monorepo
+# https://pnpm.io/workspaces
+
+packages:
+  # All packages in the packages directory
+  - 'packages/*'
+  # Optionally include root-level apps/libs
+  # - 'apps/*'
+  # - 'libs/*'
