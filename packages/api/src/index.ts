@@ -1,4 +1,5 @@
-import express, { Application, Request, Response } from 'express';
+import express from 'express';
+import mongoose from 'mongoose';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -7,57 +8,50 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-const app: Application = express();
-const PORT = process.env.PORT || 8001;
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(helmet()); // Security headers
-app.use(cors()); // CORS support
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+// --- Middleware ---
+app.use(helmet());
 
-// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.',
+  max: 100, // limit each IP to 100 requests per windowMs
 });
-app.use('/api/', limiter);
+app.use(limiter);
 
-// Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ 
-    status: 'ok', 
-    message: 'API server is running',
-    timestamp: new Date().toISOString()
-  });
-});
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Next.js dev
+  credentials: true,
+}));
 
-// API routes
-app.get('/api', (req: Request, res: Response) => {
-  res.json({ 
-    message: 'Welcome to SSV Prof Platform API',
-    version: '1.0.0',
-    endpoints: [
-      { path: '/health', method: 'GET', description: 'Health check' },
-      { path: '/api', method: 'GET', description: 'API information' }
-    ]
-  });
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// --- Routes ---
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', service: 'SSV-Prof API' });
 });
 
-// 404 handler
-app.use((req: Request, res: Response) => {
-  res.status(404).json({ 
-    error: 'Not Found',
-    message: `Cannot ${req.method} ${req.path}`
-  });
+// .routes
+// app.use('/api/library', libraryRoutes);
+// app.use('/api/internship', internshipRoutes);
+// app.use('/api/consultation', consultationRoutes);
+
+// 404
+app.use('*', (req, res) => {
+  res.status(404).json({ error: 'Route Not Found' });
 });
 
-// Start server
+// --- MongoDB Connection ---
+mongoose.connect(process.env.MONGODB_URI!)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => console.error('❌ MongoDB connection error:', err));
+
+// --- Start Server ---
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+  console.log(`🚀 SSV-Prof API server running on port ${PORT}`);
   console.log(`📋 Health check: http://localhost:${PORT}/health`);
-  console.log(`📡 API endpoint: http://localhost:${PORT}/api`);
 });
 
 export default app;
