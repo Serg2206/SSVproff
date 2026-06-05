@@ -1,39 +1,26 @@
-# SSVproff
+<div align="center">
 
-Минимальный старт: монорепо с документацией, автоматизацией и заготовками API/Web.
+# SSVproff — Цифрова екосистема хірургічної науки
 
-## Структура
-- docs — MkDocs + Material, автодеплой на GitHub Pages
-- api — FastAPI (заготовка)
-- web — Next.js (заготовка, статический экспорт)
-- data-meta — метаданные наборов
-- flows — скрипты (rclone, dvc, ci)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](#)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](#)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](#)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen)](#)
 
-## Быстрый старт
-- Установить: Python 3.11+, Node LTS, rclone, dvc
-- Документация локально: `make docs-serve`
-- Загрузка медиа: `make upload-photos` / `make upload-videos`
-- DVC push: `make push-data`
+**Монорепо-центр цифрової платформи проф. Сергія Сушкова —  
+хірурга, онкохірурга, доктора медичних наук з 40-річним стажем**
 
-## Безопасность
-- Включены Dependabot/CodeQL/Secret Scanning. Секреты хранить в GitHub Secrets.
+[🌐 ssvnauka.com](http://ssvnauka.com) · [📊 Проекти](#-проекти-екосистеми) · [🚀 Старт](#-швидкий-старт)
 
-## Локальный запуск
+</div>
 
-### API
-```bash
-cd api
-uvicorn app.main:app --reload --port 8001
-```
+---
 
-### Web
-```bash
-cd web
-npm install
-npm run dev
-```
+## 🎯 Про SSVproff
 
-### Docs
-```bash
-make docs-serve  # http://localhost:8000
-```
+**SSVproff** — це відкрита науково-медична платформа, що поєднує:
+- 40 років хірургічного та онкохірургічного досвіду
+- Сучасні AI/ML технології для медичних досліджень
+- Освітні платформи для хірургів
+- Автоматизовані інструменти для наукової діяльності
+
