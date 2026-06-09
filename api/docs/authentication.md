@@ -1,35 +1,51 @@
 
-# Authentication API Documentation
-
-This document describes the authentication system implemented in the SSVproff API.
+# Authentication System Documentation
 
 ## Overview
 
-The API uses JWT (JSON Web Tokens) for authentication. Users can register, log in, and access protected endpoints using access tokens. Refresh tokens allow users to obtain new access tokens without re-authenticating.
+The SSVproff API implements a complete JWT-based authentication system with the following features:
 
-## Authentication Flow
+- User registration and login
+- JWT access and refresh tokens
+- Password hashing with bcrypt
+- Protected endpoints
+- Example CRUD operations (Tasks)
 
-1. **Registration**: New users register with email, username, and password
-2. **Login**: Users authenticate with email and password to receive JWT tokens
-3. **Access Protected Routes**: Use access token in Authorization header
-4. **Token Refresh**: Use refresh token to get new access token without re-login
+## Architecture
 
-## Security Features
+### Components
 
-- **Password Hashing**: Passwords are hashed using bcrypt with automatic salt generation
-- **JWT Tokens**: Secure token-based authentication with expiration
-- **Token Types**: Separate access and refresh tokens with different expiration times
-- **Field Validation**: Strict validation on email, username, and password fields
-- **Database Constraints**: Unique constraints on email and username
+1. **Models** (`app/models/`)
+   - `User`: User account information
+   - `Task`: Example resource for authenticated users
+
+2. **Schemas** (`app/schemas/`)
+   - `UserCreate`, `UserLogin`, `UserResponse`: User operations
+   - `Token`, `TokenPayload`: JWT token handling
+   - `TaskCreate`, `TaskUpdate`, `TaskResponse`: Task operations
+
+3. **Services** (`app/services/`)
+   - `auth.py`: Authentication business logic
+   - `task.py`: Task management business logic
+
+4. **Security** (`app/core/security.py`)
+   - Password hashing (bcrypt)
+   - JWT token creation and validation
+   - Token types: access (30 min) and refresh (7 days)
+
+5. **Dependencies** (`app/api/deps.py`)
+   - `get_current_user`: Dependency for protected endpoints
+   - `get_current_active_superuser`: Dependency for admin endpoints
 
 ## API Endpoints
 
-### POST /api/v1/auth/register
+### Authentication
 
-Register a new user account.
+#### Register User
+```http
+POST /api/v1/auth/register
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
   "email": "user@example.com",
   "username": "johndoe",
@@ -37,7 +53,7 @@ Register a new user account.
 }
 ```
 
-**Response (201 Created):**
+Response:
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -50,30 +66,18 @@ Register a new user account.
 }
 ```
 
-**Validation Rules:**
-- Email: Valid email format
-- Username: 3-50 characters, alphanumeric, underscore, hyphen only
-- Password: Minimum 8 characters
+#### Login
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
 
-**Error Responses:**
-- `400 Bad Request`: Email or username already exists
-- `422 Unprocessable Entity`: Validation error
-
----
-
-### POST /api/v1/auth/login
-
-Authenticate and receive JWT tokens.
-
-**Request Body:**
-```json
 {
   "email": "user@example.com",
   "password": "securepassword123"
 }
 ```
 
-**Response (200 OK):**
+Response:
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -82,22 +86,13 @@ Authenticate and receive JWT tokens.
 }
 ```
 
-**Error Responses:**
-- `401 Unauthorized`: Incorrect email or password
-- `400 Bad Request`: User account is inactive
-
----
-
-### GET /api/v1/auth/me
-
-Get current authenticated user information. **Requires authentication.**
-
-**Headers:**
-```
+#### Get Current User
+```http
+GET /api/v1/auth/me
 Authorization: Bearer <access_token>
 ```
 
-**Response (200 OK):**
+Response:
 ```json
 {
   "id": "123e4567-e89b-12d3-a456-426614174000",
@@ -110,23 +105,17 @@ Authorization: Bearer <access_token>
 }
 ```
 
-**Error Responses:**
-- `401 Unauthorized`: Missing, invalid, or expired token
+#### Refresh Token
+```http
+POST /api/v1/auth/refresh
+Content-Type: application/json
 
----
-
-### POST /api/v1/auth/refresh
-
-Get a new access token using a refresh token.
-
-**Request Body:**
-```json
 {
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-**Response (200 OK):**
+Response:
 ```json
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -134,176 +123,304 @@ Get a new access token using a refresh token.
 }
 ```
 
-**Error Responses:**
-- `401 Unauthorized`: Invalid or expired refresh token
+### Tasks (Protected Endpoints)
 
----
+All task endpoints require authentication via the `Authorization: Bearer <access_token>` header.
 
-## Token Details
+#### List Tasks
+```http
+GET /api/v1/tasks/?skip=0&limit=10&completed=false
+Authorization: Bearer <access_token>
+```
 
-### Access Token
-- **Purpose**: Access protected API endpoints
-- **Expiration**: 30 minutes (configurable via `ACCESS_TOKEN_EXPIRE_MINUTES`)
-- **Type**: JWT with "access" type claim
+#### Create Task
+```http
+POST /api/v1/tasks/
+Authorization: Bearer <access_token>
+Content-Type: application/json
 
-### Refresh Token
-- **Purpose**: Obtain new access tokens without re-login
-- **Expiration**: 7 days
-- **Type**: JWT with "refresh" type claim
-
-### Token Payload Structure
-```json
 {
-  "sub": "user-id-uuid",
-  "exp": 1234567890,
-  "iat": 1234567890,
-  "type": "access"
+  "title": "Complete project",
+  "description": "Finish the API implementation",
+  "is_completed": false
 }
 ```
 
-## Using Protected Endpoints
-
-To access protected endpoints, include the access token in the Authorization header:
-
-```bash
-curl -H "Authorization: Bearer <access_token>" \
-  http://localhost:8000/api/v1/auth/me
+#### Get Task
+```http
+GET /api/v1/tasks/{task_id}
+Authorization: Bearer <access_token>
 ```
 
-## Error Handling
+#### Update Task
+```http
+PUT /api/v1/tasks/{task_id}
+Authorization: Bearer <access_token>
+Content-Type: application/json
 
-All authentication endpoints follow consistent error response format:
-
-```json
 {
-  "detail": "Error message describing the issue"
+  "is_completed": true
 }
 ```
 
-Common HTTP status codes:
-- `200 OK`: Success
-- `201 Created`: Resource created successfully
-- `400 Bad Request`: Invalid input or business logic error
-- `401 Unauthorized`: Authentication failure
-- `403 Forbidden`: Insufficient permissions
-- `422 Unprocessable Entity`: Validation error
+#### Delete Task
+```http
+DELETE /api/v1/tasks/{task_id}
+Authorization: Bearer <access_token>
+```
 
 ## Database Schema
 
 ### Users Table
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    hashed_password VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    is_superuser BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| id | UUID | PRIMARY KEY, NOT NULL | Unique identifier |
-| email | VARCHAR(255) | UNIQUE, NOT NULL, INDEXED | User email |
-| username | VARCHAR(50) | UNIQUE, NOT NULL, INDEXED | Username |
-| hashed_password | VARCHAR(255) | NOT NULL | Bcrypt hashed password |
-| is_active | BOOLEAN | NOT NULL, DEFAULT TRUE | Account status |
-| is_superuser | BOOLEAN | NOT NULL, DEFAULT FALSE | Admin privileges |
-| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | Creation timestamp |
-| updated_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | Update timestamp |
+-- Indexes
+CREATE INDEX ix_users_email ON users(email);
+CREATE INDEX ix_users_username ON users(username);
+CREATE INDEX ix_users_email_active ON users(email, is_active);
+CREATE INDEX ix_users_username_active ON users(username, is_active);
+```
 
-### Indexes
-- `ix_users_id`: Primary key index
-- `ix_users_email`: Email index for fast lookups
-- `ix_users_username`: Username index for fast lookups
-- `ix_users_email_active`: Composite index for active user queries
-- `ix_users_username_active`: Composite index for active user queries
+### Tasks Table
+```sql
+CREATE TABLE tasks (
+    id UUID PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    is_completed BOOLEAN DEFAULT FALSE,
+    owner_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX ix_tasks_owner_id ON tasks(owner_id);
+CREATE INDEX ix_tasks_owner_completed ON tasks(owner_id, is_completed);
+CREATE INDEX ix_tasks_owner_created ON tasks(owner_id, created_at);
+```
+
+## Setup Instructions
+
+### 1. Install Dependencies
+```bash
+cd api
+pip install -r requirements.txt
+```
+
+### 2. Configure Environment
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+Important environment variables:
+- `SECRET_KEY`: Generate with `openssl rand -hex 32`
+- `DATABASE_URL`: PostgreSQL or SQLite connection string
+- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration (default: 30)
+
+### 3. Initialize Database
+
+#### Option A: Using Alembic Migrations (Recommended)
+```bash
+# Run migrations
+alembic upgrade head
+
+# Or use the helper script
+./scripts/run_migrations.sh
+```
+
+#### Option B: Using Initialization Script (Development)
+```bash
+# Creates tables and test users
+python scripts/init_db.py
+```
+
+This creates:
+- Test user: `test@example.com` / `testpassword123`
+- Admin user: `admin@example.com` / `admin123` (superuser)
+
+### 4. Run the API
+```bash
+# Development
+uvicorn app.main:app --reload --port 8000
+
+# Production
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### 5. Access API Documentation
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+## Testing
+
+### Run Tests
+```bash
+# All tests
+pytest
+
+# With coverage
+pytest --cov=app tests/
+
+# Specific test file
+pytest tests/test_auth_endpoints.py
+
+# Verbose output
+pytest -v
+```
+
+### Test Coverage
+
+Current test coverage includes:
+- User registration (success, duplicate email/username, validation)
+- User login (success, wrong password, nonexistent user)
+- Current user endpoint (success, no token, invalid token)
+- Token refresh (success, invalid token, wrong token type)
+- Task CRUD operations (create, read, update, delete)
+- User isolation (users can only access their own tasks)
 
 ## Security Best Practices
 
-1. **Environment Variables**: Store `SECRET_KEY` securely
-2. **Secret Key**: Use strong random key (minimum 32 characters)
-3. **HTTPS**: Always use HTTPS in production
-4. **Token Storage**: Store tokens securely on client side
-5. **Token Expiration**: Implement token refresh flow
-6. **Password Policy**: Enforce strong password requirements
-7. **Rate Limiting**: Implement rate limiting on auth endpoints (recommended)
+1. **Environment Variables**
+   - Never commit `.env` files
+   - Use strong, random `SECRET_KEY` in production
+   - Generate with: `openssl rand -hex 32`
 
-## Configuration
+2. **Passwords**
+   - Minimum 8 characters
+   - Hashed with bcrypt
+   - Never stored in plain text
 
-Key environment variables for authentication:
+3. **Tokens**
+   - Access tokens: short-lived (30 minutes)
+   - Refresh tokens: longer-lived (7 days)
+   - Store securely on client side (httpOnly cookies recommended)
 
-```env
-# Security
-SECRET_KEY=your-secret-key-change-in-production
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+4. **CORS**
+   - Configure `BACKEND_CORS_ORIGINS` in .env
+   - Only allow trusted origins
 
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/db_name
+5. **HTTPS**
+   - Always use HTTPS in production
+   - Tokens are vulnerable over HTTP
+
+## Error Handling
+
+The API returns appropriate HTTP status codes:
+
+- `200 OK`: Successful request
+- `201 Created`: Resource created successfully
+- `204 No Content`: Successful deletion
+- `400 Bad Request`: Invalid input (e.g., duplicate email)
+- `401 Unauthorized`: Missing or invalid authentication
+- `403 Forbidden`: Insufficient permissions
+- `404 Not Found`: Resource not found
+- `422 Unprocessable Entity`: Validation error
+
+Error response format:
+```json
+{
+  "detail": "Error message here"
+}
 ```
 
-Generate a secure secret key:
-```bash
-openssl rand -hex 32
-```
+## Extending the Authentication System
 
-## Example Integration
+### Adding a New Protected Resource
 
-### Python Client Example
-
+1. Create the model in `app/models/`:
 ```python
-import requests
+from app.models.user import GUID
 
-# Register
-response = requests.post(
-    "http://localhost:8000/api/v1/auth/register",
-    json={
-        "email": "user@example.com",
-        "username": "johndoe",
-        "password": "securepassword123"
-    }
-)
-user = response.json()
-
-# Login
-response = requests.post(
-    "http://localhost:8000/api/v1/auth/login",
-    json={
-        "email": "user@example.com",
-        "password": "securepassword123"
-    }
-)
-tokens = response.json()
-access_token = tokens["access_token"]
-
-# Access protected endpoint
-response = requests.get(
-    "http://localhost:8000/api/v1/auth/me",
-    headers={"Authorization": f"Bearer {access_token}"}
-)
-current_user = response.json()
+class MyResource(Base):
+    __tablename__ = "my_resources"
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    owner_id = Column(GUID(), ForeignKey("users.id"))
+    # ... other fields
 ```
 
-### JavaScript/TypeScript Example
+2. Create schemas in `app/schemas/`:
+```python
+class MyResourceCreate(BaseModel):
+    # fields
 
-```typescript
-// Register
-const registerResponse = await fetch('http://localhost:8000/api/v1/auth/register', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: 'user@example.com',
-    username: 'johndoe',
-    password: 'securepassword123'
-  })
-});
-const user = await registerResponse.json();
-
-// Login
-const loginResponse = await fetch('http://localhost:8000/api/v1/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    email: 'user@example.com',
-    password: 'securepassword123'
-  })
-});
-const tokens = await loginResponse.json();
-
-// Access protected endpoint
-const meResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
-  headers: { 'Authorization': `Bearer ${tokens.access_token}` }
-});
-const currentUser = await meResponse.json();
+class MyResourceResponse(BaseModel):
+    # fields
+    model_config = ConfigDict(from_attributes=True)
 ```
+
+3. Create service in `app/services/`:
+```python
+def get_user_resources(db: Session, user: User):
+    return db.query(MyResource).filter(
+        MyResource.owner_id == user.id
+    ).all()
+```
+
+4. Create endpoints in `app/api/v1/endpoints/`:
+```python
+@router.get("/")
+def list_resources(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return get_user_resources(db, current_user)
+```
+
+5. Register router in `app/api/v1/api.py`:
+```python
+api_router.include_router(
+    my_resources.router, 
+    prefix="/my-resources", 
+    tags=["my-resources"]
+)
+```
+
+6. Create migration:
+```bash
+alembic revision --autogenerate -m "add_my_resource_table"
+alembic upgrade head
+```
+
+## Troubleshooting
+
+### Database Connection Issues
+```
+sqlalchemy.exc.OperationalError: connection refused
+```
+**Solution**: Check if PostgreSQL is running or use SQLite for development:
+```bash
+# In .env
+DATABASE_URL=sqlite:///./ssvproff_dev.db
+```
+
+### Token Validation Errors
+```
+Could not validate credentials
+```
+**Solution**: Ensure `SECRET_KEY` matches between token creation and validation.
+
+### Import Errors
+```
+ModuleNotFoundError: No module named 'app'
+```
+**Solution**: Run commands from the `api/` directory or ensure PYTHONPATH is set.
+
+## Additional Resources
+
+- [FastAPI Documentation](https://fastapi.tiangolo.com/)
+- [SQLAlchemy Documentation](https://docs.sqlalchemy.org/)
+- [Pydantic Documentation](https://docs.pydantic.dev/)
+- [JWT.io](https://jwt.io/) - Debug JWT tokens
+- [Alembic Documentation](https://alembic.sqlalchemy.org/)
+
