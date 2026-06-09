@@ -1,31 +1,25 @@
-site_name: SSVproff Documentation
-site_description: Монорепозиторий для управления файлами, автоматизации, безопасности и версионирования
+site_name: Serg2206 / SSVproff
+site_description: Презентационная витрина проекта SSVproff — монорепозиторий для управления файлами, автоматизации, безопасности и версионирования.
 site_author: Serg2206
 site_url: https://serg2206.github.io/SSVproff/
 
-# Repository
 repo_name: Serg2206/SSVproff
 repo_url: https://github.com/Serg2206/SSVproff
 edit_uri: edit/main/docs/
 
-# Copyright
-copyright: Copyright &copy; 2025 SSVproff Team
+copyright: Copyright &copy; 2025 Serg2206
 
-# Theme configuration
 theme:
   name: material
   language: ru
-  logo: assets/logo.png
   favicon: assets/favicon.ico
   palette:
-    # Light mode
     - scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Переключить на тёмную тему
-    # Dark mode
     - scheme: slate
       primary: indigo
       accent: indigo
@@ -36,7 +30,6 @@ theme:
     text: Roboto
     code: Roboto Mono
   features:
-    # Navigation
     - navigation.instant
     - navigation.instant.progress
     - navigation.tracking
@@ -48,27 +41,22 @@ theme:
     - navigation.indexes
     - navigation.top
     - navigation.footer
-    # Table of contents
     - toc.follow
     - toc.integrate
-    # Search
     - search.suggest
     - search.highlight
     - search.share
-    # Content
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
     - content.tooltips
     - content.action.edit
     - content.action.view
-    # Header
     - announce.dismiss
 
-# Plugins
 plugins:
   - search:
-      lang: 
+      lang:
         - ru
         - en
   - git-revision-date-localized:
@@ -76,13 +64,8 @@ plugins:
       type: timeago
   - minify:
       minify_html: true
-  - mermaid2
-  # mike для версионирования документации
-  # Используется в GitHub Actions для деплоя версий
 
-# Extensions
 markdown_extensions:
-  # Python Markdown
   - abbr
   - admonition
   - attr_list
@@ -96,7 +79,6 @@ markdown_extensions:
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
-  # PyMdown Extensions
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.betterem:
@@ -129,11 +111,7 @@ markdown_extensions:
       custom_checkbox: true
   - pymdownx.tilde
 
-# Extra configuration
 extra:
-  version:
-    provider: mike
-    default: latest
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/Serg2206/SSVproff
@@ -153,33 +131,14 @@ extra:
           note: >- 
             Спасибо! Помогите нам улучшить страницу, создав issue в GitHub.
 
-# Navigation structure
 nav:
   - Главная: index.md
-  - Быстрый старт:
-      - Установка: getting-started/setup.md
-      - Конфигурация: getting-started/configuration.md
-      - Первые шаги: getting-started/quickstart.md
-  - Архитектура:
-      - Обзор: architecture.md
-      - API модуль: architecture/api.md
-      - Web модуль: architecture/web.md
-      - Flows: architecture/flows.md
-      - ADR:
-          - Шаблон: adr/template.md
-          - "ADR-0001: Выбор монорепо": adr/0001-monorepo-structure.md
-  - Руководство:
-      - Использование: guide/usage.md
-      - Управление файлами: guide/file-management.md
-      - Автоматизация: guide/automation.md
-      - Docker: guide/docker.md
-  - API Reference:
-      - FastAPI: api/fastapi.md
-      - Эндпоинты: api/endpoints.md
-  - Разработка:
-      - Contributing: development/contributing.md
-      - Code Style: development/code-style.md
-      - Testing: development/testing.md
-      - CI/CD: development/ci-cd.md
+  - Архитектура: architecture.md
+  - API Reference: api.md
+  - Автоматизация: automation.md
+  - Управление файлами: file-management.md
   - Безопасность: security.md
+  - Настройка: setup.md
+  - Использование: usage.md
+  - Разработка: development.md
   - Changelog: changelog.md
